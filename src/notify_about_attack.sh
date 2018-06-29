@@ -10,6 +10,8 @@
 #  $2 data_direction
 #  $3 pps_as_string
 #  $4 action (ban or unban)
+#  $5 protocol_as_string
+#  $6 mbps_as_string
 
 email_notify="root,please_fix_this_email@domain.ru"
 
@@ -35,13 +37,13 @@ fi
 #
 
 if [ "$4" = "ban" ]; then
-    cat | mail -s "FastNetMon Guard: IP $1 blocked because $2 attack with power $3 pps" $email_notify;
+    cat | mail -s "FastNetMon Guard: IP $1 blocked because $2 attack with power $3 pps, $6 mbps Using $5" $email_notify;
     # You can add ban code here!
     exit 0
 fi
 
 if [ "$4" == "attack_details" ]; then
-    cat | mail -s "FastNetMon Guard: IP $1 blocked because $2 attack with power $3 pps" $email_notify;
+    cat | mail -s "FastNetMon Guard: IP $1 blocked because $2 attack with power $3 pps, $6 mbps Using $5" $email_notify;
     
     exit 0
 fi

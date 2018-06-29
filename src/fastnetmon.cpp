@@ -3263,6 +3263,13 @@ void call_ban_handlers(uint32_t client_ip, attack_details& current_attack, std::
     std::string client_ip_as_string = convert_ip_as_uint_to_string(client_ip);
     std::string pps_as_string = convert_int_to_string(current_attack.attack_power);
     std::string data_direction_as_string = get_direction_name(current_attack.attack_direction);
+    std::string protocol_as_string = get_printable_protocol_name(current_attack.attack_protocol);
+    std::string mbps_as_string = "";
+    if (current_attack.attack_direction == INCOMING) {
+        mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.in_bytes));
+    } else {
+        mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.out_bytes));
+    }
 
     bool store_attack_details_to_file = true;
     
@@ -3288,8 +3295,8 @@ void call_ban_handlers(uint32_t client_ip, attack_details& current_attack, std::
 
     if (notify_script_enabled) {
         std::string script_call_params = notify_script_path + " " + client_ip_as_string + " " +
-                                         data_direction_as_string + " " + pps_as_string +
-                                         " " + "ban";
+                                         data_direction_as_string + " " + pps_as_string  + " " +
+                                         "ban" + " " + protocol_as_string + " " + mbps_as_string;
         logger << log4cpp::Priority::INFO << "Call script for ban client: " << client_ip_as_string;
 
         // We should execute external script in separate thread because any lag in this code will be
