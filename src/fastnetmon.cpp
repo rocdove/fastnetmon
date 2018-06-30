@@ -3261,12 +3261,6 @@ void execute_ip_ban(uint32_t client_ip, map_element average_speed_element, std::
 
 void call_ban_handlers(uint32_t client_ip, attack_details& current_attack, std::string flow_attack_details) { 
     std::string client_ip_as_string = convert_ip_as_uint_to_string(client_ip);
-    std::string data_direction_as_string = get_direction_name(current_attack.attack_direction);
-    std::string protocol_as_string = get_printable_protocol_name(current_attack.attack_protocol);
-    std::string in_pps_as_string = convert_int_to_string(current_attack.in_packets);
-    std::string out_pps_as_string = convert_int_to_string(current_attack.out_packets);
-    std::string in_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.in_bytes));
-    std::string out_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.out_bytes));
 
     bool store_attack_details_to_file = true;
     
@@ -3291,6 +3285,12 @@ void call_ban_handlers(uint32_t client_ip, attack_details& current_attack, std::
     }
 
     if (notify_script_enabled) {
+        std::string data_direction_as_string = get_direction_name(current_attack.attack_direction);
+        std::string protocol_as_string = get_printable_protocol_name(current_attack.attack_protocol);
+        std::string in_pps_as_string = convert_int_to_string(current_attack.in_packets);
+        std::string out_pps_as_string = convert_int_to_string(current_attack.out_packets);
+        std::string in_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.in_bytes));
+        std::string out_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.out_bytes));
         std::string script_call_params = notify_script_path + " ban " + client_ip_as_string + " " +
             data_direction_as_string + " " + protocol_as_string  + " " + in_pps_as_string + " " +
             out_pps_as_string + " " + in_mbps_as_string + " " + out_mbps_as_string;
@@ -3876,8 +3876,6 @@ void produce_dpi_dump_for_pcap_dump(std::string pcap_file_path, std::stringstrea
 
 void call_attack_details_handlers(uint32_t client_ip, attack_details& current_attack, std::string attack_fingerprint) { 
     std::string client_ip_as_string = convert_ip_as_uint_to_string(client_ip);
-    std::string attack_direction = get_direction_name(current_attack.attack_direction);
-    std::string pps_as_string = convert_int_to_string(current_attack.attack_power);
 
     // We place this variables here because we need this paths from DPI parser code
     std::string ban_timestamp_as_string = print_time_t_in_fastnetmon_format(current_attack.ban_timestamp);
@@ -3921,6 +3919,7 @@ void call_attack_details_handlers(uint32_t client_ip, attack_details& current_at
 
     // Pass attack details to script
     if (notify_script_enabled) {
+        std::string data_direction_as_string = get_direction_name(current_attack.attack_direction); 
         std::string protocol_as_string = get_printable_protocol_name(current_attack.attack_protocol);
         std::string in_pps_as_string = convert_int_to_string(current_attack.in_packets);
         std::string out_pps_as_string = convert_int_to_string(current_attack.out_packets);
