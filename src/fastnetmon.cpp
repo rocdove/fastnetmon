@@ -3261,15 +3261,12 @@ void execute_ip_ban(uint32_t client_ip, map_element average_speed_element, std::
 
 void call_ban_handlers(uint32_t client_ip, attack_details& current_attack, std::string flow_attack_details) { 
     std::string client_ip_as_string = convert_ip_as_uint_to_string(client_ip);
-    std::string pps_as_string = convert_int_to_string(current_attack.attack_power);
     std::string data_direction_as_string = get_direction_name(current_attack.attack_direction);
     std::string protocol_as_string = get_printable_protocol_name(current_attack.attack_protocol);
-    std::string mbps_as_string = "";
-    if (current_attack.attack_direction == INCOMING) {
-        mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.in_bytes));
-    } else {
-        mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.out_bytes));
-    }
+    std::string in_pps_as_string = convert_int_to_string(current_attack.in_packets);
+    std::string out_pps_as_string = convert_int_to_string(current_attack.out_packets);
+    std::string in_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.in_bytes));
+    std::string out_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.out_bytes));
 
     bool store_attack_details_to_file = true;
     
@@ -3294,9 +3291,9 @@ void call_ban_handlers(uint32_t client_ip, attack_details& current_attack, std::
     }
 
     if (notify_script_enabled) {
-        std::string script_call_params = notify_script_path + " " + client_ip_as_string + " " +
-                                         data_direction_as_string + " " + pps_as_string  + " " +
-                                         "ban" + " " + protocol_as_string + " " + mbps_as_string;
+        std::string script_call_params = notify_script_path + " ban " + client_ip_as_string + " " +
+            data_direction_as_string + " " + protocol_as_string  + " " + in_pps_as_string + " " +
+            out_pps_as_string + " " + in_mbps_as_string + " " + out_mbps_as_string;
         logger << log4cpp::Priority::INFO << "Call script for ban client: " << client_ip_as_string;
 
         // We should execute external script in separate thread because any lag in this code will be
@@ -3482,10 +3479,15 @@ void call_unban_handlers(uint32_t client_ip, attack_details& current_attack) {
 
     if (notify_script_enabled) {
         std::string data_direction_as_string = get_direction_name(current_attack.attack_direction); 
-        std::string pps_as_string = convert_int_to_string(current_attack.attack_power);
+        std::string protocol_as_string = get_printable_protocol_name(current_attack.attack_protocol);
+        std::string in_pps_as_string = convert_int_to_string(current_attack.in_packets);
+        std::string out_pps_as_string = convert_int_to_string(current_attack.out_packets);
+        std::string in_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.in_bytes));
+        std::string out_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.out_bytes));
 
-        std::string script_call_params = notify_script_path + " " + client_ip_as_string +
-            " " + data_direction_as_string + " " +  pps_as_string + " unban";
+        std::string script_call_params = notify_script_path + " unban " + client_ip_as_string + " " +
+            data_direction_as_string + " " + protocol_as_string  + " " +   + " " +
+            out_pps_as_string + " " + in_mbps_as_string + " " + out_mbps_as_string;
 
         logger << log4cpp::Priority::INFO << "Call script for unban client: " << client_ip_as_string;
 
@@ -3919,20 +3921,26 @@ void call_attack_details_handlers(uint32_t client_ip, attack_details& current_at
 
     // Pass attack details to script
     if (notify_script_enabled) {
-            logger << log4cpp::Priority::INFO
-                   << "Call script for notify about attack details for: " << client_ip_as_string;
+        std::string protocol_as_string = get_printable_protocol_name(current_attack.attack_protocol);
+        std::string in_pps_as_string = convert_int_to_string(current_attack.in_packets);
+        std::string out_pps_as_string = convert_int_to_string(current_attack.out_packets);
+        std::string in_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.in_bytes));
+        std::string out_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.out_bytes));
+        logger << log4cpp::Priority::INFO
+                << "Call script for notify about attack details for: " << client_ip_as_string;
 
-            std::string script_params = notify_script_path + " " + client_ip_as_string + " " +
-                                        attack_direction + " " + pps_as_string + " attack_details";
+        std::string script_params = notify_script_path + " attack_details " + client_ip_as_string + " " +
+            data_direction_as_string + " " + protocol_as_string  + " " + in_pps_as_string + " " +
+            out_pps_as_string + " " + in_mbps_as_string + " " + out_mbps_as_string;
 
-            // We should execute external script in separate thread because any lag in this code
-            // will be very distructive
-            boost::thread exec_with_params_thread(exec_with_stdin_params, script_params, attack_fingerprint);
-            exec_with_params_thread.detach();
+        // We should execute external script in separate thread because any lag in this code
+        // will be very distructive
+        boost::thread exec_with_params_thread(exec_with_stdin_params, script_params, attack_fingerprint);
+        exec_with_params_thread.detach();
 
-            logger << log4cpp::Priority::INFO
-                   << "Script for notify about attack details is finished: " << client_ip_as_string;
-        }
+        logger << log4cpp::Priority::INFO
+               << "Script for notify about attack details is finished: " << client_ip_as_string;
+    }
 
 #ifdef REDIS
         if (redis_enabled) {

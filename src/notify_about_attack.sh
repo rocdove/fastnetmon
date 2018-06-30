@@ -6,12 +6,14 @@
 #
 
 # This script will get following params:
-#  $1 client_ip_as_string
-#  $2 data_direction
-#  $3 pps_as_string
-#  $4 action (ban or unban)
-#  $5 protocol_as_string
-#  $6 mbps_as_string
+#  $1 action (ban or unban)
+#  $2 client_ip_as_string
+#  $3 data_direction
+#  $4 protocol_as_string
+#  $5 in_pps_as_string
+#  $6 out_pps_as_string
+#  $7 in_mbps_as_string
+#  $8 out_mbps_as_string
 
 email_notify="root,please_fix_this_email@domain.ru"
 
@@ -19,7 +21,7 @@ email_notify="root,please_fix_this_email@domain.ru"
 # Please be carefult! You should not remove cat > 
 #
 
-if [ "$4" = "unban" ]; then
+if [ "$1" = "unban" ]; then
     # No details arrived to stdin here
 
     # Unban actions if used
@@ -36,14 +38,14 @@ fi
 # FastNetMon will crash in this case (it expect read of data from script side).
 #
 
-if [ "$4" = "ban" ]; then
-    cat | mail -s "FastNetMon Guard: IP $1 blocked because $2 attack with power $3 pps, $6 mbps Using $5" $email_notify;
+if [ "$1" = "ban" ]; then
+    cat | mail -s "FastNetMon Guard: IP $2 blocked because $3 attack with in $5 pps, out $6 pps, in $7 mbps, out $8 mbps Using $4" $email_notify;
     # You can add ban code here!
     exit 0
 fi
 
-if [ "$4" == "attack_details" ]; then
-    cat | mail -s "FastNetMon Guard: IP $1 blocked because $2 attack with power $3 pps, $6 mbps Using $5" $email_notify;
+if [ "$1" == "attack_details" ]; then
+    cat | mail -s "FastNetMon Guard: IP $2 blocked because $3 attack with in $5 pps, out $6 pps, in $7 mbps, out $8 mbps Using $4" $email_notify;
     
     exit 0
 fi
