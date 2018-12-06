@@ -12,7 +12,7 @@ my $pf_ring_version = '6.0.3';
 my $pf_ring_url = "https://github.com/ntop/PF_RING/archive/v$pf_ring_version.tar.gz";
 my $pf_ring_sha = '9fb8080defd1a079ad5f0097e8a8adb5bc264d00';
 
-my $fastnetmon_git_path = 'https://github.com/pavel-odintsov/fastnetmon.git';
+my $fastnetmon_git_path = 'https://github.com/rocdove/fastnetmon.git';
 
 my $temp_folder_for_building_project = `mktemp -d /tmp/fastnetmon.build.dir.XXXXXXXXXX`;
 chomp $temp_folder_for_building_project;
@@ -206,7 +206,7 @@ sub get_user_email {
 sub main {
     detect_distribution();
 
-    get_user_email();
+    #get_user_email();
 
     $cpus_number = get_logical_cpus_number();
 
