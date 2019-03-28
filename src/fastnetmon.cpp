@@ -3486,7 +3486,7 @@ void call_unban_handlers(uint32_t client_ip, attack_details& current_attack) {
         std::string out_mbps_as_string = convert_int_to_string(convert_speed_to_mbps(current_attack.out_bytes));
 
         std::string script_call_params = notify_script_path + " unban " + client_ip_as_string + " " +
-            data_direction_as_string + " " + protocol_as_string  + " " +   + " " +
+            data_direction_as_string + " " + protocol_as_string  + " " + in_pps_as_string  + " " +
             out_pps_as_string + " " + in_mbps_as_string + " " + out_mbps_as_string;
 
         logger << log4cpp::Priority::INFO << "Call script for unban client: " << client_ip_as_string;
